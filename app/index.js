@@ -43,10 +43,7 @@ app.get( '/candidates/search', function( req, res )
     {
         found = database.candidates.sort( byTargetSkillsLength )[0];
 
-        let check = found.skills.find( s =>
-        {
-            return req.query.skills.split( ',' ).includes( s );
-        } );
+        let check = found.skills.find( s => req.query.skills.split( ',' ).includes( s ) );
 
         if( !check )
         {
