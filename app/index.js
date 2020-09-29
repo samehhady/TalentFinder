@@ -13,8 +13,10 @@ app.post( '/candidates', ( req, res ) =>
     {
         let candidate = { id: req.body.id, name: req.body.name, skills: req.body.skills };
         database.candidates.push( candidate );
-    }else{
-        res.status('400');
+    }
+    else
+    {
+        res.status( '400' );
     }
     res.send( { title: 'ok' } );
 } );
@@ -22,37 +24,41 @@ app.post( '/candidates', ( req, res ) =>
 app.get( '/candidates/search', function( req, res )
 {
     let found = {};
-    if(req.query.skills)
+    let byTargetSkillsLength = ( a, b ) =>
     {
-        found = database.candidates.map( ( candidate ) =>
+        let aTargetSkills = a.skills.filter( skill => req.query.skills.split( ',' ).includes( skill ) );
+        let bTargetSkills = b.skills.filter( skill => req.query.skills.split( ',' ).includes( skill ) );
+        if( aTargetSkills.length < bTargetSkills.length )
         {
-            candidate.skillsCount = candidate.skills.filter( ( s ) =>
-            {
-                return (req.query.skills.split( s ).length - 1) > 0;
-            } ).length;
-            return candidate;
-        } ).sort( ( a, b ) =>
-        {
-            return b.skillsCount - a.skillsCount;
-        } );
-
-        found = found.find( ( f ) =>
-        {
-            return f.skillsCount !== 0;
-        } );
-
-        if( found )
-        {
-            delete found.skillsCount;
+            return 1;
         }
-        else
+        if( aTargetSkills.length > bTargetSkills.length )
+        {
+            return -1;
+        }
+        return 0;
+    };
+
+    if( req.query.skills )
+    {
+        found = database.candidates.sort( byTargetSkillsLength )[0];
+
+        let check = found.skills.find( s =>
+        {
+            return req.query.skills.split( ',' ).includes( s );
+        } );
+
+        if( !check )
         {
             res.status( '404' );
+            found = {};
         }
-    }else{
-        res.status('400');
     }
-    res.send( found || {})
+    else
+    {
+        res.status( '400' );
+    }
+    res.send( found || {} )
 } );
 
 app.listen( port, () =>
