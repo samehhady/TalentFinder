@@ -9,17 +9,14 @@ B[5] = "...O..";
 let validSteps = 0;
 
 
-console.log(solution(B));
+console.log( solution( B ) );
 
 
 function solution( b )
 {
     b = b.reverse();
 
-    let start = b.find( ( line ) =>
-    {
-        return line.includes( 'O' );
-    } );
+    let start = b.find( line => line.includes( 'O' ) );
 
     let startX = getJafarIndex( start );
     let startY = b.indexOf( start );
