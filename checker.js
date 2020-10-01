@@ -1,13 +1,10 @@
 let B = [];
 B[0] = "..X...";
 B[1] = "......";
-B[2] = "....X.";
-B[3] = ".X....";
+B[2] = "..X.X.";
+B[3] = "......";
 B[4] = "..X.X.";
 B[5] = "...O..";
-
-let validSteps = 0;
-
 
 console.log( solution( B ) );
 
@@ -15,34 +12,36 @@ console.log( solution( B ) );
 function solution( b )
 {
     b = b.reverse();
-
+    let bestDirections = [];
     let start = b.find( line => line.includes( 'O' ) );
 
     let startX = getJafarIndex( start );
     let startY = b.indexOf( start );
 
-    let valid = isValidStep( b, startX, startY );
+    isValidStep( b, startX, startY, 0, ( err, succ ) =>
+    {
+        bestDirections.push( succ );
+    } );
 
-    return valid;
+    return bestDirections.length ? Math.max( ...bestDirections ) : 0;
 }
 
 // Check if the step is valid or not and increment it.
-function isValidStep( array, x, y )
+function isValidStep( array, x, y, val, cb )
 {
     let stepsR = getSteps( array, x, y, 'right' );
     let stepsL = getSteps( array, x, y, 'left' );
     if( stepsR.length > 1 && stepsR[0] == "X" && stepsR[1] == "." )
     {
-        validSteps++;
-        return isValidStep( array, x + 2, y + 2 );
-    }
-    else if( stepsL.length > 1 && stepsL[0] == "X" && stepsL[1] == "." )
-    {
-        validSteps++;
-        return isValidStep( array, x - 2, y + 2 );
+        cb( null, isValidStep( array, x + 2, y + 2,val + 1, cb ) );
     }
 
-    return validSteps;
+    if( stepsL.length > 1 && stepsL[0] == "X" && stepsL[1] == "." )
+    {
+        cb( null, isValidStep( array, x - 2, y + 2,val + 1, cb ) );
+    }
+
+    return val;
 }
 
 // Get Jafar x index in board.
